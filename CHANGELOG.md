@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-06-05
+
 ### Added
 
 - `getLogoUrl(bank | domain, options?)` — resolve a bank logo URL from its website
@@ -50,6 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   is not used by `identifyBank`.
 - `bic` is community-sourced (verify before use); `logo` ships empty.
 
-[Unreleased]: https://github.com/kouameYao/uemoa-bank-resolver/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/kouameYao/uemoa-bank-resolver/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/kouameYao/uemoa-bank-resolver/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/kouameYao/uemoa-bank-resolver/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/kouameYao/uemoa-bank-resolver/releases/tag/v0.1.0
