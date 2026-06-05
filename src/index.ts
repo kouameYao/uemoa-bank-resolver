@@ -1,6 +1,6 @@
 import { IBAN_LENGTH } from "./constants";
 import { findBank } from "./data/index";
-import { InvalidFormatError, decompose } from "./decompose";
+import { decompose, InvalidFormatError } from "./decompose";
 import { isValidIban } from "./iban";
 import { normalize } from "./normalize";
 import type { IbanParts, ResolveResult } from "./types";
@@ -116,20 +116,19 @@ export function identifyBank(input: string): ResolveResult {
   };
 }
 
+export { BBAN_LENGTH, IBAN_LENGTH, isUemoaCountry, UEMOA_COUNTRIES } from "./constants";
+export { BANKS, deriveBankCode } from "./data/index";
+export { decompose, InvalidFormatError } from "./decompose";
+export { formatIban, formatParts } from "./format";
+export { type GenerateIbanOptions, generateIban, isValidIban, toIban } from "./iban";
+export { getBanksByCountry, listBanks, lookupBank } from "./lookup";
+export { normalize } from "./normalize";
+export { computeRibKey, isValidRibKey } from "./ribKey";
 export type {
   Bank,
   CountryCode,
+  IbanParts,
   InstitutionType,
   Presence,
-  IbanParts,
   ResolveResult,
 } from "./types";
-
-export { UEMOA_COUNTRIES, isUemoaCountry, IBAN_LENGTH, BBAN_LENGTH } from "./constants";
-export { normalize } from "./normalize";
-export { decompose, InvalidFormatError } from "./decompose";
-export { isValidIban, toIban, generateIban, type GenerateIbanOptions } from "./iban";
-export { computeRibKey, isValidRibKey } from "./ribKey";
-export { formatParts, formatIban } from "./format";
-export { lookupBank, listBanks, getBanksByCountry } from "./lookup";
-export { deriveBankCode, BANKS } from "./data/index";

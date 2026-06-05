@@ -1,5 +1,5 @@
 import { FIELD, IBAN_LENGTH } from "./constants";
-import { InvalidFormatError, decompose } from "./decompose";
+import { decompose, InvalidFormatError } from "./decompose";
 import { computeCheckDigits, ibanMod97 } from "./mod97";
 import { normalize } from "./normalize";
 

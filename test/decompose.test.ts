@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { InvalidFormatError, decompose } from "../src/decompose";
+import { decompose, InvalidFormatError } from "../src/decompose";
 
 describe("decompose", () => {
   it("parses a full IBAN (real Côte d'Ivoire example)", () => {
