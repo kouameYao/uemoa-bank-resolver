@@ -5,7 +5,7 @@ Merci de contribuer à `uemoa-bank-resolver` ! 🙏
 ## Mise en route
 
 ```bash
-git clone https://github.com/your-org/uemoa-bank-resolver.git
+git clone https://github.com/kouameYao/uemoa-bank-resolver.git
 cd uemoa-bank-resolver
 npm install
 npm test
