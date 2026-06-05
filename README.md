@@ -62,6 +62,7 @@ interface ResolveResult {
 | `isValidIban(input)`                    | `boolean`         | Longueur, pays et checksum mod-97 (ISO 13616).         |
 | `decompose(input)`                      | `IbanParts`       | Découpe en champs nommés (jette `InvalidFormatError`). |
 | `lookupBank(country, bankCode)`         | `Bank \| null`    | Recherche par pays + code banque.                      |
+| `getLogoUrl(bank \| domain, opts?)`     | `string \| null`  | URL du logo via un service (à partir du domaine).      |
 | `getBanksByCountry(country)`            | `Bank[]`          | Institutions d'un pays.                                |
 | `listBanks()`                           | `readonly Bank[]` | Les 161 institutions.                                  |
 | `formatParts(input, sep?)`              | `string`          | `"CI93 CI034 01049 142643500018 09"`.                  |
@@ -94,9 +95,22 @@ interface Bank {
   type: "bank" | "financial";
   presence?: "filiale" | "succursale";
   bic?: string | null;
-  logo?: string | null;
+  website?: string | null;     // domaine officiel, ex. "ecobank.com"
+  logo?: string | null;        // URL explicite (sinon, utiliser getLogoUrl)
 }
 ```
+
+### Logos
+
+```ts
+import { getLogoUrl, lookupBank } from "uemoa-bank-resolver";
+
+getLogoUrl(lookupBank("CI", "CI059"));                 // favicon Ecobank (Google, défaut)
+getLogoUrl("societegenerale.ci", { provider: "clearbit", size: 256 });
+getLogoUrl(bank, { provider: "logodev", token: "pk_..." });
+```
+
+Aucun logo n'est embarqué (marques déposées). `getLogoUrl` construit l'URL depuis le **domaine** de la banque via un service tiers — providers : `google` (défaut, sans clé), `duckduckgo`, `clearbit`, `logodev`/`brandfetch` (avec `token`).
 
 ## Format
 
@@ -109,7 +123,8 @@ Le code banque vaut `ISO pays + 3 chiffres` (`CI034`), dérivé du n° d'inscrip
 161 établissements de crédit (136 banques + 25 établissements financiers) — source : **BCEAO / Commission Bancaire de l'UMOA, 31 décembre 2025**.
 
 - `bic` renseigné pour ~90 établissements (annuaires SWIFT publics, rapprochés par nom) — **communautaire, à vérifier** avant un virement.
-- `logo` non fourni.
+- `website` (domaine officiel) renseigné pour les grands groupes — **curé et partiel**, à compléter. Alimente `getLogoUrl`.
+- Aucun **logo** n'est embarqué (marques déposées) : utilisez `getLogoUrl`.
 
 ## Notes
 

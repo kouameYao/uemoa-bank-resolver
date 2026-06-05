@@ -20,6 +20,7 @@ export interface RegistryRow {
   presence?: Presence;
   bic?: string | null;
   logo?: string | null;
+  website?: string | null;
 }
 
 /**

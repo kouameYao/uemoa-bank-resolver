@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `getLogoUrl(bank | domain, options?)` — resolve a bank logo URL from its website
+  domain via a configurable provider (google/duckduckgo/clearbit/logodev/brandfetch).
+  No trademarked images are bundled.
+- `Bank.website` field + curated official domains for the major banking groups
+  (Ecobank, UBA, Coris, Orabank, Banque Atlantique, CBAO, BGFI, SG, NSIA, BICICI).
+
 ## [0.1.1] - 2026-06-05
 
 ### Changed
