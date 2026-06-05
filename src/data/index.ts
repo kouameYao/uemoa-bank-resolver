@@ -1,5 +1,6 @@
 import type { Bank, CountryCode } from "../types";
 import { REGISTRY, type RegistryRow } from "./registry";
+import { WEBSITES } from "./websites";
 
 /**
  * The legacy single-letter country prefix used in BCEAO registration numbers,
@@ -50,9 +51,10 @@ export function deriveBankCode(country: string, registration: string): string {
 }
 
 function toBank(row: RegistryRow): Bank {
+  const bankCode = deriveBankCode(row.country, row.registration);
   return {
     country: row.country,
-    bankCode: deriveBankCode(row.country, row.registration),
+    bankCode,
     registration: row.registration,
     name: row.name,
     shortName: row.shortName,
@@ -60,6 +62,7 @@ function toBank(row: RegistryRow): Bank {
     presence: row.presence,
     bic: row.bic ?? null,
     logo: row.logo ?? null,
+    website: row.website ?? WEBSITES[`${row.country}:${bankCode}`] ?? null,
   };
 }
 

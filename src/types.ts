@@ -34,8 +34,10 @@ export interface Bank {
   presence?: Presence;
   /** BIC / SWIFT code. Optional — fill from your own source. */
   bic?: string | null;
-  /** Logo URL or local path. Optional — fill from your own source. */
+  /** Explicit logo URL or local path. Optional. Prefer {@link getLogoUrl} which derives one from `website`. */
   logo?: string | null;
+  /** Official website domain (e.g. "ecobank.com"). Powers {@link getLogoUrl}. */
+  website?: string | null;
 }
 
 /**

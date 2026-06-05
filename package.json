@@ -1,6 +1,6 @@
 {
   "name": "uemoa-bank-resolver",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Identify the bank behind any UEMOA / BCEAO IBAN or RIB (Bénin, Burkina, Côte d'Ivoire, Guinée-Bissau, Mali, Niger, Sénégal, Togo). Validation, decomposition and offline bank lookup. Zero runtime dependencies.",
   "type": "module",
   "main": "./dist/index.cjs",

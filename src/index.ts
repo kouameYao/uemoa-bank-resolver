@@ -121,6 +121,7 @@ export { BANKS, deriveBankCode } from "./data/index";
 export { decompose, InvalidFormatError } from "./decompose";
 export { formatIban, formatParts } from "./format";
 export { type GenerateIbanOptions, generateIban, isValidIban, toIban } from "./iban";
+export { getLogoUrl, type LogoOptions, type LogoProvider } from "./logo";
 export { getBanksByCountry, listBanks, lookupBank } from "./lookup";
 export { normalize } from "./normalize";
 export { computeRibKey, isValidRibKey } from "./ribKey";
