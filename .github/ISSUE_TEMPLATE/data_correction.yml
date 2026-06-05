@@ -1,0 +1,41 @@
+name: 🏦 Correction de données (banque)
+description: Signaler un code banque, un nom ou une information bancaire incorrects ou manquants.
+title: "[data] "
+labels: ["data"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Merci d'aider à garder la base à jour. La source de référence est la
+        [liste BCEAO des établissements de crédit agréés](https://www.bceao.int/fr/content/etablissements-de-credit-et-compagnies-financieres-de-lumoa).
+  - type: dropdown
+    id: country
+    attributes:
+      label: Pays
+      options: [Bénin, Burkina Faso, Côte d'Ivoire, Guinée-Bissau, Mali, Niger, Sénégal, Togo]
+    validations:
+      required: true
+  - type: input
+    id: bank
+    attributes:
+      label: Banque concernée
+      placeholder: "Ex. Société Générale Côte d'Ivoire"
+    validations:
+      required: true
+  - type: input
+    id: registration
+    attributes:
+      label: Numéro d'inscription BCEAO (si connu)
+      placeholder: "Ex. A 0008 D"
+  - type: textarea
+    id: problem
+    attributes:
+      label: Que faut-il corriger ?
+      placeholder: "Code banque erroné / nom obsolète / BIC manquant / nouvelle banque / radiation…"
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Source / preuve
+      placeholder: "Lien BCEAO, IBAN réel anonymisé, document officiel…"

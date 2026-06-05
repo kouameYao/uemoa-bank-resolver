@@ -1,0 +1,35 @@
+name: 🐞 Bug
+description: Signaler un comportement incorrect de la librairie.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: Description
+      placeholder: "Ce qui se passe vs ce qui est attendu."
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction
+      description: Un extrait minimal (IBAN/RIB anonymisés).
+      render: ts
+      placeholder: |
+        import { identifyBank } from "uemoa-bank-resolver";
+        identifyBank("CI93 ...");
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version du package
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: runtime
+    attributes:
+      label: Environnement
+      placeholder: "Node 20 / Vite / Bun / Deno…"
