@@ -6,6 +6,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-06-10
+
+### Added
+
+- `isValidRib(input)` — validate a UEMOA RIB via its **clé RIB**: accepts a raw
+  24-char RIB (BBAN) or extracts the BBAN from a 28-char IBAN. Structure + clé,
+  never throws. The RIB counterpart of `isValidIban`.
+- `identifyBank` now reports `ribKeyValid` (computed when every BBAN field is
+  well-formed). A clé RIB mismatch is a **non-blocking warning** — the mod-97
+  checksum stays authoritative for a full IBAN, while the clé RIB is the available
+  integrity signal for a raw BBAN.
+- `generateIban` computes a matching clé RIB by default, so fixtures are
+  self-consistent for both the checksum and the clé.
+
+### Changed
+
+- The clé RIB now uses the correct BCEAO algorithm — complement to 97 of the full
+  BBAN (key positions zeroed), letters folded to digits, taken mod 97 — replacing
+  the experimental French formula. Verified against known-real IBANs whose mod-97
+  checksum is authoritative.
+
+### Removed
+
+- **Breaking:** `computeRibKey` / `isValidRibKey` are no longer exported (they are
+  now internal). Use `isValidRib` instead.
+
 ## [0.2.0] - 2026-06-05
 
 ### Added
@@ -52,7 +78,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   is not used by `identifyBank`.
 - `bic` is community-sourced (verify before use); `logo` ships empty.
 
-[Unreleased]: https://github.com/kouameYao/uemoa-bank-resolver/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/kouameYao/uemoa-bank-resolver/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/kouameYao/uemoa-bank-resolver/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/kouameYao/uemoa-bank-resolver/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/kouameYao/uemoa-bank-resolver/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/kouameYao/uemoa-bank-resolver/releases/tag/v0.1.0
