@@ -49,7 +49,7 @@ interface ResolveResult {
   country: CountryCode | null;
   parts: IbanParts | null;
   ibanValid: boolean | null; // mod-97 ; null pour un RIB brut
-  ribKeyValid: boolean | null; // null (voir Notes)
+  ribKeyValid: boolean | null; // clé RIB best-effort ; null si champ malformé (voir Notes)
   bank: Bank | null;
 }
 ```
@@ -59,7 +59,8 @@ interface ResolveResult {
 | Fonction                                | Retour            | Description                                            |
 | --------------------------------------- | ----------------- | ------------------------------------------------------ |
 | `identifyBank(input)`                   | `ResolveResult`   | Validation + décomposition + identification.           |
-| `isValidIban(input)`                    | `boolean`         | Longueur, pays et checksum mod-97 (ISO 13616).         |
+| `isValidIban(input)`                    | `boolean`         | IBAN UEMOA : longueur, pays et checksum mod-97.        |
+| `isValidRib(input)`                     | `boolean`         | RIB (ou IBAN) : structure + **clé RIB** (best-effort). |
 | `decompose(input)`                      | `IbanParts`       | Découpe en champs nommés (jette `InvalidFormatError`). |
 | `lookupBank(country, bankCode)`         | `Bank \| null`    | Recherche par pays + code banque.                      |
 | `getLogoUrl(bank \| domain, opts?)`     | `string \| null`  | URL du logo via un service (à partir du domaine).      |
@@ -128,8 +129,8 @@ Le code banque vaut `ISO pays + 3 chiffres` (`CI034`), dérivé du n° d'inscrip
 
 ## Notes
 
-- La somme de contrôle fiable d'un IBAN est le **checksum mod-97**. Un **RIB brut** (sans préfixe IBAN) n'a pas de checksum : seule sa structure est validée.
-- La **clé RIB** (`ribKeyValid`) n'est pas vérifiée : l'algorithme BCEAO pour les codes banque préfixés ISO n'est pas confirmé. `computeRibKey` / `isValidRibKey` sont exportées à titre expérimental.
+- La somme de contrôle **autoritaire** d'un IBAN reste le **checksum mod-97** (`isValidIban`). Préférez-la quand vous disposez de l'IBAN complet.
+- La **clé RIB** est désormais vérifiée en **best-effort** (formule mod-97 française) : `isValidRib(input)` valide un RIB nu, et `identifyBank` la remonte via `ribKeyValid`. ⚠️ L'algorithme BCEAO exact pour les codes banque préfixés ISO n'est **pas confirmé** — un écart **peut être un faux négatif**. C'est pourquoi un écart de clé est **non bloquant** dans `identifyBank` (simple `warning`, `valid` reste vrai), alors que `isValidRib` est strict. Le calcul de la clé est un détail interne : seule la validité du **RIB** est exposée (`isValidRib`).
 - Données datées : pensez à mettre à jour la base (cf. `CONTRIBUTING.md`).
 
 ## License
