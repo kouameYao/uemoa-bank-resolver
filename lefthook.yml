@@ -1,0 +1,12 @@
+# Lefthook git hooks — https://lefthook.dev/configuration/
+#
+# Bumps the package patch version before each commit and re-stages the
+# manifest files so the bump is part of the same commit.
+pre-commit:
+  jobs:
+    - name: bump-version
+      # --no-git-tag-version: only edit package.json + package-lock.json,
+      # without an extra git commit/tag (this hook already runs inside the commit).
+      run: |
+        npm version patch --no-git-tag-version
+        git add package.json package-lock.json
