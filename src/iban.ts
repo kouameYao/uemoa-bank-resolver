@@ -2,6 +2,7 @@ import { FIELD, IBAN_LENGTH } from "./constants";
 import { decompose, InvalidFormatError } from "./decompose";
 import { computeCheckDigits, ibanMod97 } from "./mod97";
 import { normalize } from "./normalize";
+import { computeRibKey } from "./ribKey";
 
 /**
  * Validate a UEMOA IBAN: correct length, known country, and ISO 13616 mod-97
@@ -42,15 +43,16 @@ export interface GenerateIbanOptions {
   branchCode?: string;
   /** 12-digit account number. Default twelve zeros. */
   accountNumber?: string;
-  /** 2-digit RIB key. Default "00" — the clé RIB algorithm is unconfirmed, so this is a placeholder. */
+  /** 2-digit RIB key. Default: computed with {@link computeRibKey}. */
   ribKey?: string;
 }
 
 /**
  * Generate a UEMOA IBAN with a **valid mod-97 checksum**, for tests and fixtures.
  *
- * Note: the `ribKey` is a placeholder (the BCEAO clé RIB algorithm is unconfirmed),
- * so the IBAN checksum is valid but the clé RIB is not meaningful.
+ * When `ribKey` is omitted it is computed so the fixture is self-consistent for
+ * both the IBAN checksum and the clé RIB. Pass `ribKey` explicitly to force a
+ * specific (possibly invalid) key.
  *
  * @example
  * generateIban({ country: "CI", bankCode: "CI034", branchCode: "01049" });
@@ -60,7 +62,7 @@ export function generateIban(options: GenerateIbanOptions): string {
   const bankCode = options.bankCode.toUpperCase();
   const branchCode = options.branchCode ?? "0".repeat(FIELD.BRANCH);
   const accountNumber = options.accountNumber ?? "0".repeat(FIELD.ACCOUNT);
-  const ribKey = options.ribKey ?? "0".repeat(FIELD.KEY);
+  const ribKey = options.ribKey ?? computeRibKey(bankCode, branchCode, accountNumber);
 
   const fields: Array<[string, string, number]> = [
     ["bankCode", bankCode, FIELD.BANK],

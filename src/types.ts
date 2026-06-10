@@ -74,7 +74,7 @@ export interface ResolveResult {
   valid: boolean;
   /** Hard errors that make the input invalid. */
   errors: string[];
-  /** Non-blocking observations (e.g. best-effort RIB key mismatch, unknown bank). */
+  /** Non-blocking observations (e.g. clé RIB mismatch, unknown bank). */
   warnings: string[];
   /** Detected country, or `null` when undeterminable. */
   country: CountryCode | null;

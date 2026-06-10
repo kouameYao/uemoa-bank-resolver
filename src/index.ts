@@ -3,6 +3,7 @@ import { findBank } from "./data/index";
 import { decompose, InvalidFormatError } from "./decompose";
 import { isValidIban } from "./iban";
 import { normalize } from "./normalize";
+import { isValidRibKey } from "./ribKey";
 import type { IbanParts, ResolveResult } from "./types";
 
 /**
@@ -78,25 +79,34 @@ export function identifyBank(input: string): ResolveResult {
     errors.push(`Malformed RIB key "${parts.ribKey}" (expected 2 digits)`);
   }
 
+  // Were all four BBAN fields well-formed? (captured before the IBAN-checksum
+  // error so the clé RIB can still be assessed on a checksum-failed IBAN).
+  const fieldsWellFormed = errors.length === 0;
+
   // IBAN checksum (authoritative when an IBAN prefix is present).
   const isIban = parts.checkDigits !== null;
   let ibanValid: boolean | null = null;
   if (isIban) {
     ibanValid = isValidIban(normalized);
     if (!ibanValid) errors.push("IBAN checksum (mod-97) is invalid");
-  } else if (errors.length === 0) {
-    // A raw RIB has no IBAN check digits and the clé RIB algorithm is unconfirmed,
-    // so only the structure could be verified — be explicit about it.
-    warnings.push(
-      "Raw RIB: structure only — no checksum available (provide the full IBAN for integrity verification)",
-    );
   }
 
-  // RIB key (clé RIB) is intentionally NOT checked automatically: the exact
-  // BCEAO algorithm for the modern ISO-prefixed bank codes is not confirmed and
-  // the French-style formula does not match observed keys. `computeRibKey` /
-  // `isValidRibKey` remain exported for experimentation. See ribKey.ts.
-  const ribKeyValid: boolean | null = null;
+  // Clé RIB integrity (BCEAO mod-97, see ribKey.ts). Computable only when every
+  // field is well-formed. A mismatch is a non-blocking warning — for a full IBAN
+  // the mod-97 checksum above is the authoritative end-to-end check; for a raw
+  // BBAN the clé RIB is the available integrity signal.
+  let ribKeyValid: boolean | null = null;
+  if (fieldsWellFormed) {
+    ribKeyValid = isValidRibKey(
+      parts.bankCode,
+      parts.branchCode,
+      parts.accountNumber,
+      parts.ribKey,
+    );
+    if (!ribKeyValid) {
+      warnings.push("Clé RIB does not match the bank code, branch code and account number");
+    }
+  }
 
   const bank = findBank(parts.countryCode, parts.bankCode);
   if (!bank) {
@@ -124,7 +134,7 @@ export { type GenerateIbanOptions, generateIban, isValidIban, toIban } from "./i
 export { getLogoUrl, type LogoOptions, type LogoProvider } from "./logo";
 export { getBanksByCountry, listBanks, lookupBank } from "./lookup";
 export { normalize } from "./normalize";
-export { computeRibKey, isValidRibKey } from "./ribKey";
+export { isValidRib } from "./rib";
 export type {
   Bank,
   CountryCode,

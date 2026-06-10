@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { toIban } from "../src/iban";
+import { generateIban, isValidIban, toIban } from "../src/iban";
 import { identifyBank } from "../src/index";
 
 describe("identifyBank", () => {
@@ -20,13 +20,28 @@ describe("identifyBank", () => {
     expect(r.bank?.shortName).toBe("BACI");
   });
 
-  it("works on a raw RIB (no IBAN prefix, no checksum)", () => {
-    const r = identifyBank("CI0080104900000000000000".slice(0, 24));
+  it("validates the clé RIB on a raw RIB", () => {
+    // generateIban computes a matching clé RIB by default, so its BBAN is consistent.
+    const rib = generateIban({
+      country: "CI",
+      bankCode: "CI008",
+      branchCode: "01049",
+    }).slice(4);
+    const r = identifyBank(rib);
     expect(r.isIban).toBe(false);
     expect(r.ibanValid).toBeNull();
+    expect(r.ribKeyValid).toBe(true);
     expect(r.country).toBe("CI");
     expect(r.bank?.shortName).toBe("SGCI");
-    expect(r.warnings.join(" ")).toContain("Raw RIB");
+    expect(r.warnings.join(" ")).not.toContain("Clé RIB");
+  });
+
+  it("warns (non-blocking) when the clé RIB does not match", () => {
+    const r = identifyBank("CI0080104900000000000000".slice(0, 24)); // clé "00" — won't match
+    expect(r.isIban).toBe(false);
+    expect(r.ribKeyValid).toBe(false);
+    expect(r.valid).toBe(true); // a clé RIB mismatch is a warning, never blocks validity
+    expect(r.warnings.join(" ")).toContain("Clé RIB");
   });
 
   it("flags an invalid IBAN checksum as an error", () => {
@@ -70,5 +85,22 @@ describe("identifyBank", () => {
     expect(r.ibanValid).toBe(true);
     expect(r.bank).toBeNull();
     expect(r.warnings.join(" ")).toContain("Unknown bank code");
+  });
+
+  it("rejects an IBAN whose IBAN check digits and clé RIB are both wrong", () => {
+    // SGCI bank code, but the "93" check digits and "11" clé RIB are inconsistent
+    // with this account number (the correct clé RIB is "22", and once the clé is
+    // "22" the original "93" check digits are valid — see the assertions below).
+    const r = identifyBank("CI93 CI008 01122 012248782323 11");
+    expect(r.isIban).toBe(true);
+    expect(r.bank?.shortName).toBe("SGCI");
+    expect(r.ibanValid).toBe(false); // mod-97 fails
+    expect(r.ribKeyValid).toBe(false); // clé RIB "11" ≠ expected "22"
+    expect(r.valid).toBe(false); // mod-97 failure is blocking
+    expect(r.errors.join(" ")).toContain("mod-97");
+
+    // Correcting the clé RIB to "22" makes both the clé and the "93" checksum valid.
+    expect(isValidIban("CI93CI0080112201224878232322")).toBe(true);
+    expect(identifyBank("CI93 CI008 01122 012248782424 10").valid).toBe(true);
   });
 });
