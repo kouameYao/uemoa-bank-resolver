@@ -9,7 +9,7 @@
     "postbuild": "pagefind --site .next/server/app --output-path public/_pagefind"
   },
   "dependencies": {
-    "uemoa-bank-resolver": "file:..",
+    "uemoa-bank-resolver": "^0.3.1",
     "next": "~15.1.0",
     "nextra": "~4.2.0",
     "nextra-theme-docs": "~4.2.0",
