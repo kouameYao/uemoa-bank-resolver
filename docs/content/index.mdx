@@ -1,0 +1,65 @@
+---
+title: UEMOA Bank Resolver
+---
+
+import { Cards } from "nextra/components";
+
+<div style={{ textAlign: "center", padding: "4rem 1rem 2rem" }}>
+
+# 🏦 UEMOA Bank Resolver
+
+### Validate, decompose & identify the bank behind any **UEMOA / BCEAO** IBAN or RIB.
+
+Offline · fully typed · **zero runtime dependencies** · works in Node **and** the browser.
+
+[![npm version](https://img.shields.io/npm/v/uemoa-bank-resolver.svg)](https://www.npmjs.com/package/uemoa-bank-resolver)
+[![npm downloads](https://img.shields.io/npm/dm/uemoa-bank-resolver.svg)](https://www.npmjs.com/package/uemoa-bank-resolver)
+[![types](https://img.shields.io/npm/types/uemoa-bank-resolver.svg)](https://www.npmjs.com/package/uemoa-bank-resolver)
+[![license](https://img.shields.io/npm/l/uemoa-bank-resolver.svg)](https://github.com/kouameYao/uemoa-bank-resolver/blob/main/LICENSE)
+
+</div>
+
+```bash
+npm install uemoa-bank-resolver
+```
+
+```ts
+import { identifyBank } from "uemoa-bank-resolver";
+
+const r = identifyBank("CI93 CI034 01049 142643500018 09");
+
+r.valid; // true
+r.country; // "CI"
+r.bank?.name; // "Banque Atlantique Côte d'Ivoire"
+r.parts?.bankCode; // "CI034"
+```
+
+## Why UEMOA Bank Resolver?
+
+<Cards>
+  <Cards.Card
+    title="🌍 8 countries, one library"
+    href="/supported-countries"
+    arrow
+  >
+    Bénin, Burkina Faso, Côte d'Ivoire, Guinée-Bissau, Mali, Niger, Sénégal,
+    Togo — 161 BCEAO credit institutions in a single offline dataset.
+  </Cards.Card>
+  <Cards.Card title="✅ Real validation" href="/quick-start" arrow>
+    ISO 13616 mod-97 IBAN checksum, structural decomposition, and bank
+    identification.
+  </Cards.Card>
+  <Cards.Card title="📦 Zero dependencies" href="/introduction" arrow>
+    No network calls, no native deps. Tree-shakeable ESM + CJS with full
+    TypeScript types.
+  </Cards.Card>
+</Cards>
+
+## Get started
+
+<Cards>
+  <Cards.Card title="Introduction →" href="/introduction" />
+  <Cards.Card title="Installation →" href="/installation" />
+  <Cards.Card title="Quick Start →" href="/quick-start" />
+  <Cards.Card title="API Reference →" href="/api-reference" />
+</Cards>

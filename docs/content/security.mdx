@@ -1,0 +1,52 @@
+---
+title: Security
+description: Responsible disclosure, reporting, and the security model of the package.
+---
+
+import { Callout } from "nextra/components";
+
+# Security
+
+## Security model
+
+UEMOA Bank Resolver has a deliberately small attack surface:
+
+- **No runtime dependencies** — nothing to compromise transitively.
+- **No network calls** — it never sends or fetches data at runtime.
+- **No filesystem access** — it performs only in-memory string parsing and lookups.
+
+The main correctness concern is therefore **data accuracy**, not code execution.
+
+## Reporting a vulnerability
+
+<Callout type="warning">
+  Please do **not** open a public issue for security problems.
+</Callout>
+
+Report privately via GitHub's **"Report a vulnerability"** (Security ▸ Advisories) on the
+[repository](https://github.com/kouameYao/uemoa-bank-resolver), or contact the maintainer
+directly. You'll receive an acknowledgement within a few days.
+
+## Responsible disclosure
+
+- Give us a reasonable window to investigate and ship a fix before public disclosure.
+- Include a minimal reproduction (use **synthetic** IBANs/RIBs, never a real account).
+- We'll credit reporters who wish to be named once a fix is released.
+
+## Data-accuracy issues are not vulnerabilities
+
+An incorrect bank code, name, or BIC is a **data correction**, not a security report.
+Please use the *Data correction* issue template instead.
+
+## Using the library safely
+
+- The reliable integrity check is the **IBAN mod-97 checksum** (`isValidIban`). Do not
+  rely on the experimental clé RIB helpers for validation.
+- Treat **BIC** values as community-sourced — verify before initiating a real transfer.
+- Never log full account numbers; mask them in application logs and bug reports.
+- This library validates **format and identity**, not account ownership or status —
+  always complete your own KYC/AML checks before moving money.
+
+## Supported versions
+
+The latest published minor version receives fixes.

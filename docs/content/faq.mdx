@@ -1,0 +1,114 @@
+---
+title: FAQ
+description: Frequently asked questions about UEMOA Bank Resolver.
+---
+
+# FAQ
+
+### Does this package call external APIs?
+
+No. All validation and lookups run **offline** against an embedded dataset. The only
+function that produces an external URL is `getLogoUrl`, and even that just **builds a
+string** — it makes no request itself.
+
+### Does it work offline?
+
+Yes, entirely. There are no network calls at runtime.
+
+### Is it browser compatible?
+
+Yes. It's pure JavaScript with no Node-only APIs, so it runs in the browser, Node, Deno,
+Bun, and edge runtimes.
+
+### Is it tree-shakeable?
+
+Yes. It ships ESM with `"sideEffects": false`. Use the subpath entries
+(`uemoa-bank-resolver/logo`, `uemoa-bank-resolver/data`) to avoid bundling the dataset
+when you don't need it.
+
+### Does it support TypeScript?
+
+Yes — every function and data shape is fully typed, with both `.d.ts` (ESM) and `.d.cts`
+(CJS) declarations.
+
+### Does it have runtime dependencies?
+
+No. Zero runtime dependencies.
+
+### Can it validate the clé RIB (the last 2 digits)?
+
+Not reliably. The exact BCEAO algorithm for ISO-prefixed bank codes is unconfirmed, so the
+clé RIB is **not** checked. The dependable integrity check is the IBAN **mod-97 checksum**
+via `isValidIban`.
+
+### What's the difference between an IBAN and a RIB here?
+
+An IBAN is 28 characters (country + check digits + BBAN) and can be checksum-verified. A
+**raw RIB** is the 24-character BBAN with no checksum, so only its structure is validated.
+
+### Why does `lookupBank` need a country code?
+
+Because the same numeric bank-code range is reused across countries; the country
+disambiguates. Pass both: `lookupBank("CI", "CI008")`.
+
+### Why is `bank` `null` even though the IBAN is valid?
+
+The checksum can be valid while the bank code isn't in the dataset (a new or unlisted
+institution). You'll get `valid: true` with a warning and `bank: null`.
+
+### How accurate are the BIC codes?
+
+BIC values are **community-sourced** from public SWIFT directories and matched by name
+(~90 of 161 institutions). Verify them before using them for a real transfer; renamed
+banks may carry a former BIC.
+
+### Are bank logos included?
+
+No images are bundled (they're trademarks). `getLogoUrl` builds a logo URL from the
+bank's `website` domain via a provider you choose.
+
+### How do I get a logo for a bank without a `website`?
+
+`getLogoUrl` returns `null`. You can pass your own domain string, or contribute the
+official domain to `src/data/websites.ts`.
+
+### How current is the data?
+
+It reflects the BCEAO list of **31 December 2025**. Banking landscapes change (mergers,
+new licences, de-registrations) — open an issue to report a correction.
+
+### Does it cover mobile money operators (Wave, Orange Money, MoMo)?
+
+No. It covers **bank/credit institutions** only, not mobile-money providers.
+
+### Does it cover other zones (CEMAC / Central Africa)?
+
+Not currently. The scope is the 8 UEMOA states.
+
+### Will an invalid input throw?
+
+`identifyBank` and `isValidIban` never throw. `decompose`, `formatParts`, `formatIban`
+throw `InvalidFormatError` on malformed input.
+
+### Does it handle spaces and lowercase?
+
+Yes. Input is normalized (separators stripped, upper-cased) before processing.
+
+### What Node version is required?
+
+Node 18 or newer.
+
+### How big is it?
+
+Small and tree-shakeable. Importing only `uemoa-bank-resolver/logo` pulls almost nothing;
+the dataset chunk loads only when you use lookups.
+
+### How do I report a wrong bank code or add a bank?
+
+Open a "Data correction" issue or a PR editing `src/data/registry.ts`. The bank code is
+derived automatically from the official registration number.
+
+### Is it production-ready?
+
+The validation and identification paths are tested and stable. Treat **BIC** as
+to-verify and the **clé RIB** as experimental — see [Security](/security).

@@ -15,7 +15,7 @@
     "formatter": { "quoteStyle": "double" }
   },
   "files": {
-    "includes": ["**", "!**/dist", "!**/coverage", "!**/node_modules", "!**/examples"]
+    "includes": ["**", "!**/dist", "!**/coverage", "!**/node_modules", "!**/examples", "!**/docs"]
   },
   "overrides": [
     {

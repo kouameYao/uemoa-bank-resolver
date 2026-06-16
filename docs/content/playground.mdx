@@ -1,0 +1,28 @@
+---
+title: Playground
+description: Try UEMOA Bank Resolver live in your browser — resolve, parse and validate.
+---
+
+import { Callout } from "nextra/components";
+import { Playground } from "../components/playground";
+
+# Playground
+
+Run the library **live, in your browser** — everything below executes locally with
+`uemoa-bank-resolver`, no server, no network.
+
+<Playground />
+
+<Callout type="info">
+  - **Resolve Bank** — pick a country and a 5-character bank code to look up the institution.
+  - **Parse RIB** — paste an IBAN or RIB to see the full decoded `ResolveResult`.
+  - **Validate** — check the mod-97 checksum (IBAN) or structure (raw RIB).
+</Callout>
+
+Sample inputs to try:
+
+| Input | What it shows |
+| --- | --- |
+| `CI93 CI034 01049 142643500018 09` | Valid IBAN → Banque Atlantique Côte d'Ivoire |
+| `CI0080112201224878232322` | Raw RIB → Société Générale Côte d'Ivoire (structure only) |
+| `CI00CI0340104914264350001809` | Invalid checksum |
