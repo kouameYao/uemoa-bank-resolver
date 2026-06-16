@@ -1,0 +1,87 @@
+---
+title: Supported Countries
+description: The 8 UEMOA member states covered by the dataset.
+---
+
+import { Callout } from "nextra/components";
+
+# Supported Countries
+
+The dataset covers the **8 member states of the UEMOA** (BCEAO zone), totalling **161
+credit institutions** (136 banks + 25 financial institutions), per the BCEAO /
+Commission Bancaire de l'UMOA list of 31 December 2025.
+
+| Country | ISO | Institutions | Example bank | Bank code |
+| --- | --- | --- | --- | --- |
+| Côte d'Ivoire | `CI` | 33 | Société Générale Côte d'Ivoire | `CI008` |
+| Sénégal | `SN` | 33 | CBAO, Groupe Attijariwafa Bank | `SN012` |
+| Niger | `NE` | 20 | Société Nigérienne de Banque (SONIBANK) | `NE064` |
+| Burkina Faso | `BF` | 20 | Coris Bank International | `BF148` |
+| Mali | `ML` | 17 | Banque de Développement du Mali | `ML016` |
+| Togo | `TG` | 17 | Union Togolaise de Banque (UTB) | `TG009` |
+| Bénin | `BJ` | 15 | Bank of Africa - Bénin | `BJ061` |
+| Guinée-Bissau | `GW` | 6 | Banco da África Ocidental (BAO) | `GW096` |
+
+## Côte d'Ivoire — `CI`
+
+The largest banking sector in the zone. Home to major groups (SGCI, Ecobank CI, BICICI,
+NSIA, Coris CI).
+
+```ts
+lookupBank("CI", "CI008")?.name; // "Société Générale Côte d'Ivoire"
+```
+
+## Sénégal — `SN`
+
+Headquarters of CBAO and many pan-African subsidiaries.
+
+```ts
+lookupBank("SN", "SN011")?.name; // "Société Générale Sénégal"
+```
+
+## Niger — `NE`
+
+```ts
+lookupBank("NE", "NE064")?.name; // "Société Nigérienne de Banque"
+```
+
+## Burkina Faso — `BF`
+
+Home of Coris Bank International, one of the fastest-growing regional groups.
+
+```ts
+lookupBank("BF", "BF148")?.name; // "Coris Bank International"
+```
+
+## Mali — `ML`
+
+```ts
+lookupBank("ML", "ML016")?.name; // "Banque de Développement du Mali"
+```
+
+## Togo — `TG`
+
+Home of the Ecobank group headquarters and UTB.
+
+```ts
+lookupBank("TG", "TG009")?.name; // "Union Togolaise de Banque"
+```
+
+## Bénin — `BJ`
+
+```ts
+lookupBank("BJ", "BJ061")?.name; // "Bank of Africa - Bénin"
+```
+
+## Guinée-Bissau — `GW`
+
+The smallest sector in the zone; Portuguese-speaking.
+
+```ts
+lookupBank("GW", "GW096")?.name; // "Banco da África Ocidental"
+```
+
+<Callout type="info">
+  Enumerate every institution for a country with
+  [`getBanksByCountry`](/api-reference#getbanksbycountry--listbanks).
+</Callout>

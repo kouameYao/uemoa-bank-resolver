@@ -1,0 +1,66 @@
+---
+title: Installation
+description: Install UEMOA Bank Resolver with npm, pnpm, or yarn.
+---
+
+import { Callout, Tabs } from "nextra/components";
+
+# Installation
+
+<Tabs items={["npm", "pnpm", "yarn"]}>
+  <Tabs.Tab>
+    ```bash
+    npm install uemoa-bank-resolver
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```bash
+    pnpm add uemoa-bank-resolver
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```bash
+    yarn add uemoa-bank-resolver
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+## Requirements
+
+| Requirement | Value |
+| --- | --- |
+| Node.js | ≥ 18 |
+| Module formats | ESM **and** CommonJS |
+| Types | Bundled (`.d.ts` + `.d.cts`) |
+| Runtime dependencies | **None** |
+
+## Importing
+
+```ts
+// ESM
+import { identifyBank } from "uemoa-bank-resolver";
+
+// CommonJS
+const { identifyBank } = require("uemoa-bank-resolver");
+```
+
+### Subpath imports (tree-shaking)
+
+Import only what you need — the bank registry stays out of your bundle unless you
+actually use it.
+
+```ts
+import { getLogoUrl } from "uemoa-bank-resolver/logo"; // logo helper only
+import { lookupBank, listBanks } from "uemoa-bank-resolver/data"; // dataset only
+```
+
+| Entry | Contents |
+| --- | --- |
+| `uemoa-bank-resolver` | Everything (validation, parsing, lookup, logos). |
+| `uemoa-bank-resolver/logo` | `getLogoUrl` + logo types (no dataset). |
+| `uemoa-bank-resolver/data` | `lookupBank`, `getBanksByCountry`, `listBanks`, `BANKS`, `deriveBankCode`. |
+
+<Callout type="info">
+  Works out of the box with Vite, webpack, Rollup, esbuild, Next.js, Bun and Deno — no
+  extra configuration required.
+</Callout>

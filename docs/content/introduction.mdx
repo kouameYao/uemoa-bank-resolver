@@ -1,0 +1,59 @@
+---
+title: Introduction
+description: What UEMOA Bank Resolver is, the problem it solves, and when to use it.
+---
+
+import { Callout } from "nextra/components";
+
+# Introduction
+
+**UEMOA Bank Resolver** is a small, dependency-free TypeScript library that turns a
+UEMOA / BCEAO **IBAN** or **RIB** into structured, validated, identifiable data.
+
+## What is it?
+
+The 8 member states of the **UEMOA** (Union Économique et Monétaire Ouest-Africaine),
+whose central bank is the **BCEAO**, share a single account-number structure. Given a
+string like `CI93 CI034 01049 142643500018 09`, this library can:
+
+- **validate** it (ISO 13616 mod-97 checksum),
+- **decompose** it into named fields (country, bank code, branch, account, key),
+- **identify** the bank behind the 5-character bank code, from an embedded dataset of
+  **161 BCEAO credit institutions**.
+
+## The problem it solves
+
+In the UEMOA zone, account numbers are routinely shared as raw RIBs or IBANs, but:
+
+- there is **no single, ready-to-use dataset** mapping a bank code to a bank name/BIC;
+- existing IBAN libraries (e.g. `ibantools`) validate the checksum but **don't identify
+  the institution** and have weak UEMOA coverage;
+- teams end up hardcoding partial, quickly-outdated lists.
+
+This library packages the **official BCEAO registry** (31 December 2025) and the parsing
+logic so you can validate and identify in one call — **offline**.
+
+## Use cases
+
+| Scenario | What you do |
+| --- | --- |
+| **Fintech payouts** | Validate an IBAN before initiating a transfer; show the bank name to the user. |
+| **Onboarding / KYC** | Verify a customer's bank details and auto-fill the institution. |
+| **Back-office QA** | Batch-check stored RIBs for structural validity and unknown bank codes. |
+| **Forms & UX** | Live-format a RIB and display the resolved bank as the user types. |
+
+## Why use it?
+
+- **Offline & private** — no network calls, no data leaves your runtime.
+- **Zero runtime dependencies** — nothing to audit transitively.
+- **Isomorphic** — same code in Node, the browser, Deno, Bun, and edge runtimes.
+- **Typed** — every function and data shape ships with TypeScript types.
+- **Tree-shakeable** — import the whole library, or just `uemoa-bank-resolver/logo`
+  / `uemoa-bank-resolver/data`.
+
+<Callout type="warning">
+  This library is a **data + parsing** tool, not a payment rail. The reliable integrity
+  check is the **IBAN mod-97 checksum**. BIC values are community-sourced (verify before
+  a real transfer) and the clé RIB is **not** verified — see the [FAQ](/faq) and
+  [Security](/security) pages.
+</Callout>

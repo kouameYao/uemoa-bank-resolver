@@ -1,0 +1,103 @@
+---
+title: Quick Start
+description: Resolve a bank, parse a RIB, and validate an IBAN in a few lines.
+---
+
+import { Callout } from "nextra/components";
+
+# Quick Start
+
+Three common tasks, each with code, the resulting value, and an explanation.
+
+## 1. Identify a bank from an IBAN or RIB
+
+```ts
+import { identifyBank } from "uemoa-bank-resolver";
+
+const result = identifyBank("CI93 CI034 01049 142643500018 09");
+```
+
+```json
+{
+  "input": "CI93 CI034 01049 142643500018 09",
+  "normalized": "CI93CI0340104914264350001809",
+  "isIban": true,
+  "valid": true,
+  "errors": [],
+  "warnings": [],
+  "country": "CI",
+  "parts": {
+    "countryCode": "CI",
+    "checkDigits": "93",
+    "bankCode": "CI034",
+    "branchCode": "01049",
+    "accountNumber": "142643500018",
+    "ribKey": "09",
+    "bban": "CI0340104914264350001809"
+  },
+  "ibanValid": true,
+  "ribKeyValid": null,
+  "bank": {
+    "country": "CI",
+    "bankCode": "CI034",
+    "registration": "A 0034 G",
+    "name": "Banque Atlantique Côte d'Ivoire",
+    "shortName": "BACI",
+    "type": "bank",
+    "presence": "filiale",
+    "bic": "ATCICIAB",
+    "website": "banqueatlantique.net",
+    "logo": null
+  }
+}
+```
+
+`identifyBank` **never throws** — it always returns a `ResolveResult`. It accepts both a
+28-character **IBAN** and a 24-character **raw RIB** (with or without spaces/dashes).
+
+## 2. Look up a bank by its code
+
+```ts
+import { lookupBank } from "uemoa-bank-resolver";
+
+const bank = lookupBank("CI", "CI008");
+```
+
+```json
+{
+  "country": "CI",
+  "bankCode": "CI008",
+  "registration": "A 0008 D",
+  "name": "Société Générale Côte d'Ivoire",
+  "shortName": "SGCI",
+  "type": "bank",
+  "presence": "filiale",
+  "bic": "SGCICIAB",
+  "website": "societegenerale.ci",
+  "logo": null
+}
+```
+
+<Callout type="warning">
+  `lookupBank` requires **both** the country code and the 5-character bank code, because
+  the same numeric range is reused across countries. It returns `null` for an unknown code.
+</Callout>
+
+## 3. Validate an IBAN
+
+```ts
+import { isValidIban } from "uemoa-bank-resolver";
+
+isValidIban("CI93CI0340104914264350001809"); // true
+isValidIban("CI00CI0340104914264350001809"); // false (bad checksum)
+isValidIban("not an iban"); // false
+```
+
+`isValidIban` checks length, that the country is a UEMOA member, and the **ISO 13616
+mod-97 checksum**. It never throws.
+
+<Callout type="info">
+  A **raw RIB** (24 chars, no IBAN prefix) has no checksum to verify, so `identifyBank`
+  validates its structure only and adds a warning. To verify integrity, work with the
+  full IBAN. See the [RIB Format Guide](/rib-format).
+</Callout>

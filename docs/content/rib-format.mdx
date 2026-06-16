@@ -1,0 +1,91 @@
+---
+title: RIB Format Guide
+description: How a UEMOA IBAN and RIB are structured, field by field.
+---
+
+import { Callout } from "nextra/components";
+
+# RIB Format Guide
+
+A UEMOA **IBAN** is the country code and two check digits followed by the 24-character
+**BBAN** (the "RIB"):
+
+```text
+ IBAN (28 characters)
+┌──────────────────────────────────────────────────────────┐
+ CI  93   CI034   01049   142643500018   09
+ │   │    │       │       │              │
+ │   │    │       │       │              └─ Clé RIB        (2)
+ │   │    │       │       └──────────────── Numéro compte  (12)
+ │   │    │       └──────────────────────── Code guichet   (5)
+ │   │    └──────────────────────────────── Code banque    (5)
+ │   └───────────────────────────────────── Clé IBAN       (2)
+ └───────────────────────────────────────── Code pays ISO  (2)
+└──────────────────────────────────────────────────────────┘
+        └──────────── BBAN / RIB (24 characters) ───────────┘
+```
+
+| Field | Length | Example | Meaning |
+| --- | --- | --- | --- |
+| Country code | 2 | `CI` | ISO 3166-1 alpha-2 of the country. |
+| IBAN check digits | 2 | `93` | ISO 13616 mod-97 checksum of the whole IBAN. |
+| Bank code | 5 | `CI034` | Identifies the bank: `ISO + 3 digits`. |
+| Branch code (guichet) | 5 | `01049` | The agency where the account was opened. |
+| Account number | 12 | `142643500018` | The customer's account. |
+| RIB key (clé RIB) | 2 | `09` | National check digits for the BBAN. |
+
+## Country code
+
+The first two letters are the ISO country code of one of the 8 UEMOA states. See
+[Supported Countries](/supported-countries).
+
+## Bank code
+
+The **5-character bank code** is `ISO country (2) + a 3-digit number`. The 3-digit number
+comes from the bank's BCEAO registration number — for example Société Générale Côte
+d'Ivoire is registered `A 0008 D`, which yields bank code **`CI008`**.
+
+```ts
+import { deriveBankCode } from "uemoa-bank-resolver";
+deriveBankCode("CI", "A 0008 D"); // "CI008"
+```
+
+<Callout type="info">
+  The BCEAO reform replaced the legacy single-letter prefix with the ISO country code,
+  keeping the bank code 5 characters long.
+</Callout>
+
+## Branch code (code guichet)
+
+A 5-digit number identifying the specific agency. It is not resolved to an agency name by
+this library.
+
+## Account number
+
+12 characters identifying the customer's account at that branch.
+
+## RIB key (clé RIB)
+
+The last 2 digits are a national checksum over the BBAN.
+
+<Callout type="warning">
+  This library does **not** verify the clé RIB: the exact BCEAO algorithm for the modern
+  ISO-prefixed bank codes is unconfirmed. The reliable integrity check is the **IBAN
+  mod-97 checksum** (`isValidIban`). A raw RIB without the IBAN prefix therefore can only
+  be checked structurally.
+</Callout>
+
+## IBAN vs RIB
+
+| | RIB (BBAN) | IBAN |
+| --- | --- | --- |
+| Length | 24 | 28 |
+| Prefix | none | country + check digits |
+| Integrity check | structure only | mod-97 checksum |
+
+Convert a RIB to an IBAN with [`toIban`](/api-reference#toiban):
+
+```ts
+import { toIban } from "uemoa-bank-resolver";
+toIban("CI", "CI0340104914264350001809"); // "CI93CI0340104914264350001809"
+```

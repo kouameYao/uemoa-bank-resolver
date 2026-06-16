@@ -1,0 +1,258 @@
+---
+title: API Reference
+description: Complete reference for every exported function and type.
+---
+
+import { Callout } from "nextra/components";
+
+# API Reference
+
+Everything below is exported from `uemoa-bank-resolver` (v0.2.0).
+
+## `identifyBank`
+
+Validate, decompose and resolve the bank behind an IBAN or RIB. **Never throws.**
+
+```ts
+function identifyBank(input: string): ResolveResult;
+```
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `input` | `string` | An IBAN (28 chars) or raw RIB (24 chars). Separators and case are ignored. |
+
+**Returns** a [`ResolveResult`](#resolveresult). Non-string input yields `valid: false`
+with `errors: ["Input must be a string"]`.
+
+```ts
+const r = identifyBank("CI93 CI034 01049 142643500018 09");
+if (r.valid) console.log(r.bank?.name); // "Banque Atlantique Côte d'Ivoire"
+```
+
+## `isValidIban`
+
+```ts
+function isValidIban(input: string): boolean;
+```
+
+Returns `true` when `input` has the correct length, a UEMOA country code, and a valid
+**ISO 13616 mod-97** checksum. Returns `false` for anything else — never throws.
+
+## `decompose`
+
+```ts
+function decompose(input: string): IbanParts;
+```
+
+Splits an IBAN or RIB into named fields.
+
+<Callout type="error">
+  Unlike `identifyBank`, `decompose` **throws** `InvalidFormatError` when the length or
+  country prefix is invalid. Wrap it in `try/catch`, or use `identifyBank` for a
+  non-throwing flow.
+</Callout>
+
+```ts
+import { decompose, InvalidFormatError } from "uemoa-bank-resolver";
+
+try {
+  const parts = decompose("CI0340104914264350001809"); // raw RIB
+  parts.bankCode; // "CI034"
+  parts.checkDigits; // null (no IBAN prefix)
+} catch (e) {
+  if (e instanceof InvalidFormatError) {
+    /* handle malformed input */
+  }
+}
+```
+
+## `toIban`
+
+```ts
+function toIban(countryCode: string, bban: string): string;
+```
+
+Builds a valid IBAN from a 24-character BBAN by computing the check digits.
+
+```ts
+toIban("CI", "CI0340104914264350001809"); // "CI93CI0340104914264350001809"
+```
+
+## `generateIban`
+
+```ts
+function generateIban(options: GenerateIbanOptions): string;
+```
+
+Produces an IBAN with a **valid checksum**, for tests and fixtures.
+
+| Option | Type | Default |
+| --- | --- | --- |
+| `country` | `string` | — |
+| `bankCode` | `string` | — |
+| `branchCode` | `string` | `"00000"` |
+| `accountNumber` | `string` | twelve zeros |
+| `ribKey` | `string` | `"00"` |
+
+```ts
+generateIban({ country: "CI", bankCode: "CI034", branchCode: "01049" });
+```
+
+<Callout type="info">
+  The generated `ribKey` is a placeholder — the BCEAO clé RIB algorithm is unconfirmed,
+  so the IBAN checksum is valid but the clé RIB is not meaningful.
+</Callout>
+
+## `formatParts` & `formatIban`
+
+```ts
+function formatParts(input: string, separator?: string): string;
+function formatIban(input: string, separator?: string): string;
+```
+
+```ts
+formatParts("CI93CI0340104914264350001809"); // "CI93 CI034 01049 142643500018 09"
+formatIban("CI93CI0340104914264350001809"); // "CI93 CI03 4010 4914 2643 5000 1809"
+```
+
+`formatParts` groups by semantic field; `formatIban` groups in blocks of four like a
+bank statement. Both throw `InvalidFormatError` on malformed input.
+
+## `lookupBank`
+
+```ts
+function lookupBank(country: string, bankCode: string): Bank | null;
+```
+
+Returns the [`Bank`](#bank) for a country + 5-character bank code, or `null`. Both
+arguments are required and case-insensitive.
+
+## `getBanksByCountry` & `listBanks`
+
+```ts
+function getBanksByCountry(country: CountryCode): Bank[];
+function listBanks(): readonly Bank[];
+```
+
+```ts
+getBanksByCountry("SN").length; // 33
+listBanks().length; // 161
+```
+
+## `getLogoUrl`
+
+```ts
+function getLogoUrl(
+  input: Bank | string | null | undefined,
+  options?: LogoOptions,
+): string | null;
+```
+
+Builds a logo URL from a bank's `website` domain via a third-party service. Resolution
+order for a `Bank`: explicit `logo` → `website` → `null`. **No images are bundled.**
+
+| Option | Type | Default |
+| --- | --- | --- |
+| `provider` | `"google" \| "duckduckgo" \| "clearbit" \| "logodev" \| "brandfetch"` | `"google"` |
+| `size` | `number` | `128` |
+| `token` | `string` | — (required by `logodev` / `brandfetch`) |
+
+```ts
+getLogoUrl(lookupBank("CI", "CI059")); // Ecobank → google favicon URL
+getLogoUrl("societegenerale.ci", { provider: "clearbit", size: 256 });
+```
+
+## `deriveBankCode`
+
+```ts
+function deriveBankCode(country: string, registration: string): string;
+```
+
+Derives the 5-character bank code from a BCEAO registration number. Throws if the
+registration letter doesn't match the country or has no digits.
+
+```ts
+deriveBankCode("CI", "A 0008 D"); // "CI008"
+```
+
+## `computeRibKey` & `isValidRibKey`
+
+```ts
+function computeRibKey(bankCode: string, branchCode: string, accountNumber: string): string;
+function isValidRibKey(bankCode: string, branchCode: string, accountNumber: string, ribKey: string): boolean;
+```
+
+<Callout type="error">
+  **Experimental.** The exact BCEAO clé RIB algorithm for ISO-prefixed bank codes is not
+  confirmed; these do not match observed keys and are **not** used by `identifyBank`.
+  Do not rely on them for integrity — use `isValidIban`.
+</Callout>
+
+## Constants
+
+```ts
+const UEMOA_COUNTRIES: Record<CountryCode, string>; // { CI: "Côte d'Ivoire", ... }
+function isUemoaCountry(value: string): value is CountryCode;
+const IBAN_LENGTH: 28;
+const BBAN_LENGTH: 24;
+const BANKS: readonly Bank[];
+```
+
+---
+
+## Types
+
+### `ResolveResult`
+
+```ts
+interface ResolveResult {
+  input: string;
+  normalized: string;
+  isIban: boolean;
+  valid: boolean; // structure OK + (for IBAN) mod-97 OK
+  errors: string[]; // hard failures
+  warnings: string[]; // non-blocking (e.g. unknown bank, raw RIB)
+  country: CountryCode | null;
+  parts: IbanParts | null;
+  ibanValid: boolean | null; // null for a raw RIB
+  ribKeyValid: boolean | null; // always null (see computeRibKey)
+  bank: Bank | null;
+}
+```
+
+### `IbanParts`
+
+```ts
+interface IbanParts {
+  countryCode: CountryCode;
+  checkDigits: string | null; // null for a raw RIB
+  bankCode: string; // "CI034"
+  branchCode: string;
+  accountNumber: string;
+  ribKey: string;
+  bban: string; // 24 chars
+}
+```
+
+### `Bank`
+
+```ts
+interface Bank {
+  country: CountryCode;
+  bankCode: string; // ISO(2) + 3 digits
+  registration: string; // BCEAO "numéro d'inscription"
+  name: string;
+  shortName?: string;
+  type: "bank" | "financial";
+  presence?: "filiale" | "succursale";
+  bic?: string | null; // community-sourced — verify
+  website?: string | null;
+  logo?: string | null;
+}
+```
+
+### `CountryCode`
+
+```ts
+type CountryCode = "BJ" | "BF" | "CI" | "GW" | "ML" | "NE" | "SN" | "TG";
+```
